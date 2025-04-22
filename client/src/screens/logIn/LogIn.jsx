@@ -1,38 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from '../../contexts/userContexts.jsx';
 import axios from "axios";
 import "./logIn.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost/cool_games/public/login.php', {
+    axios({
+      method: "post",
+      url: `${import.meta.env.VITE_API_URL}api/user/login`,
+      withCredentials: true,
+      data: {
         email,
-        password,
+        password
+      },
+    })
+      .then((res) => {
+        if (res.data.errors) {
+          setErrorMessage(res.data.errors);
+        } else {
+          navigate("/games");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorMessage("Une erreur est survenue. Veuillez réessayer.");
       });
-
-      console.log('Réponse complète du serveur:', response.data);
-
-      if (response.data.status === 'success') {
-        console.log('Utilisateur:', response.data.user);
-        setUser(response.data.user);
-        navigate('/games');
-      } else {
-        setErrorMessage(response.data.message);
-      }
-    } catch (error) {
-      setErrorMessage('Aucun compte ne correspond, veuillez réessayez ou inscrivez-vous.');
-    }
   };
 
   return (
@@ -41,7 +41,7 @@ const Login = () => {
         <div className="content">
           <div className="login-box">
             <p>Connexion</p>
-            <form id="login-form" onSubmit={handleSubmit}>
+            <form id="login-form" onSubmit={handleLogin}>
               <div className="user-box">
                 <input
                   id="login-email"
