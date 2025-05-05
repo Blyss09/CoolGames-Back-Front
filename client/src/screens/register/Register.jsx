@@ -6,7 +6,7 @@ import "./register.css";
 const Register = () => {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
+  const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,7 +15,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Vérification de la correspondance des mots de passe
     if (password !== confirmPassword) {
       setErrorMessage("Les mots de passe ne correspondent pas.");
       return;
@@ -23,9 +22,9 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost/cool_games/public/register.php",
+        "http://localhost:5000/api/user/register",
         {
-          username,
+          pseudo,
           email,
           password,
           confirmPassword,
@@ -41,7 +40,12 @@ const Register = () => {
         "Une erreur est survenue pendant la création du compte",
         error
       );
-      setErrorMessage("Enregistrement échoué. Veuillez réessayer.");
+      if (error.response?.data?.errors) {
+        const { pseudo, email, password } = error.response.data.errors;
+        setErrorMessage(pseudo || email || password || "Erreur inconnue");
+      } else {
+        setErrorMessage("Erreur serveur. Veuillez réessayer.");
+      }
     }
   };
 
@@ -54,12 +58,12 @@ const Register = () => {
             <form id="register-form" onSubmit={handleSubmit}>
               <div className="user-box">
                 <input
-                  id="signup-username"
+                  id="signup-pseudo"
                   required="required"
-                  name="username"
+                  name="pseudo"
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={pseudo}
+                  onChange={(e) => setPseudo(e.target.value)}
                 />
                 <label>Pseudo</label>
               </div>

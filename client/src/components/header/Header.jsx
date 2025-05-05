@@ -51,7 +51,7 @@ const Header = () => {
               id="profile"
               className={location.pathname === "/profile" ? "active" : ""}
             >
-              <Link to="/profile">{user ? user.username : "Profile"}</Link>
+              <Link to="/profile">{user ? user.pseudo : "Profile"}</Link>
             </li>
             {user && (
               <li>
@@ -82,7 +82,7 @@ const Header = () => {
               id="profile"
               className={location.pathname === "/profile" ? "active" : ""}
             >
-              <Link to="/profile">{user ? user.username : "Profile"}</Link>
+              <Link to="/profile">{user ? user.pseudo : "Profile"}</Link>
             </li>
             {user && (
               <li>
