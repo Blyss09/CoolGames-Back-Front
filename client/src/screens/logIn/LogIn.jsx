@@ -1,38 +1,37 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useUser } from "../../contexts/userContexts";
 import "./logIn.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { fetchUser } = useUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    axios({
-      method: "post",
-      url: `${import.meta.env.VITE_API_URL}api/user/login`,
-      withCredentials: true,
-      data: {
-        email,
-        password
-      },
-    })
-      .then((res) => {
-        if (res.data.errors) {
-          setErrorMessage(res.data.errors);
-        } else {
-          navigate("/games");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setErrorMessage("Une erreur est survenue. Veuillez réessayer.");
-      });
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}api/user/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+
+      if (res.data.errors) {
+        setErrorMessage(res.data.errors);
+      } else {
+        await fetchUser(); // Recharge les infos utilisateur
+        navigate("/games");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Une erreur est survenue. Veuillez réessayer.");
+    }
   };
 
   return (
@@ -41,12 +40,10 @@ const Login = () => {
         <div className="content">
           <div className="login-box">
             <p>Connexion</p>
-            <form id="login-form" onSubmit={handleLogin}>
+            <form onSubmit={handleLogin}>
               <div className="user-box">
                 <input
-                  id="login-email"
                   required
-                  name="email"
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -55,35 +52,19 @@ const Login = () => {
               </div>
               <div className="user-box">
                 <input
-                  id="login-password"
                   required
-                  name="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <label>Mot de passe</label>
               </div>
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
+              {errorMessage && (
+                <p className="error-message">{errorMessage}</p>
+              )}
               <div className="buttons-menu">
-                <button type="submit" className="styled-button">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  Entrer
-                </button>
-                <button
-                  type="button"
-                  className="styled-button"
-                  onClick={() => navigate("/")}
-                >
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  Quitter
-                </button>
+                <button type="submit" className="styled-button">Entrer</button>
+                <button type="button" className="styled-button" onClick={() => navigate("/")}>Quitter</button>
               </div>
             </form>
             <p>
