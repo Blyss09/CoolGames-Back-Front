@@ -10,7 +10,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "" });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,14 +23,14 @@ const Login = () => {
       );
 
       if (res.data.errors) {
-        setErrorMessage(res.data.errors);
+        setErrors(res.data.errors);
       } else {
-        await fetchUser(); // Recharge les infos utilisateur
+        await fetchUser();
         navigate("/games");
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Une erreur est survenue. Veuillez réessayer.");
+      setErrors({ email: "", password: "Combinaison email/mot de passe incorrecte" });
     }
   };
 
@@ -59,8 +59,11 @@ const Login = () => {
                 />
                 <label>Mot de passe</label>
               </div>
-              {errorMessage && (
-                <p className="error-message">{errorMessage}</p>
+              {(errors.email || errors.password) && (
+                <div className="error-message">
+                  {errors.email && <p>{errors.email}</p>}
+                  {errors.password && <p>{errors.password}</p>}
+                </div>
               )}
               <div className="buttons-menu">
                 <button type="submit" className="styled-button">Entrer</button>

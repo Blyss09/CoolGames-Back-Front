@@ -11,12 +11,20 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({ pseudo: "", email: "", password: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (password.length < 6) {
+      setErrors({ pseudo: "", email: "", password: "Le mot de passe doit faire 6 caractères minimum" });
+      setErrorMessage("");
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setErrorMessage("Les mots de passe ne correspondent pas.");
+      setErrors({ pseudo: "", email: "", password: "Les mots de passe ne correspondent pas." });
+      setErrorMessage("");
       return;
     }
 
@@ -41,10 +49,9 @@ const Register = () => {
         error
       );
       if (error.response?.data?.errors) {
-        const { pseudo, email, password } = error.response.data.errors;
-        setErrorMessage(pseudo || email || password || "Erreur inconnue");
+        setErrors(error.response.data.errors);
       } else {
-        setErrorMessage("Erreur serveur. Veuillez réessayer.");
+        setErrors({ pseudo: "", email: "", password: "Erreur serveur. Veuillez réessayer." });
       }
     }
   };
@@ -85,7 +92,6 @@ const Register = () => {
                   required="required"
                   name="password"
                   type="password"
-                  pattern=".{8,}"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -97,13 +103,19 @@ const Register = () => {
                   required="required"
                   name="confirmPassword"
                   type="password"
-                  pattern=".{8,}"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <label>Confirmation Mot De Passe</label>
               </div>
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
+              {(errors.pseudo || errors.email || errors.password || errorMessage) && (
+                <div className="error-message">
+                  {errors.pseudo && <p>{errors.pseudo}</p>}
+                  {errors.email && <p>{errors.email}</p>}
+                  {errors.password && <p>{errors.password}</p>}
+                  {errorMessage && <p>{errorMessage}</p>}
+                </div>
+              )}
               <div className="buttons-menu">
                 <button type="submit" className="styled-button">
                   <span></span>
